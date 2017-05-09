@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"  
+    android:layout_width="fill_parent"  
+    android:layout_height="fill_parent"  
+    >
+    <com.robot.wireless.fouliex.androidwirelessrobot.MySurfaceView
+        android:id="@+id/mySurfaceViewVideo"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+      <Button
+        android:id="@+id/TakePhoto"
+        android:layout_width="66dp"
+        android:layout_height="55dp"
+        android:text="Take pictures" />
+
+    <Button
+        android:layout_toRightOf="@+id/TakePhoto"
+        android:id="@+id/ViewPhoto"
+        android:layout_width="66dp"
+        android:layout_height="55dp"  
+        android:layout_x="90dp"     
+        android:text="To view" />
+    
+   <Button
+       android:layout_below="@+id/TakePhoto"
+        android:id="@+id/button_forward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Foward" />
+
+     <Button
+          android:layout_below="@+id/button_forward"
+        android:id="@+id/button_backward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="backward" />
+     
+     <Button
+           android:layout_below="@+id/button_backward"
+        android:id="@+id/button_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Left" />
+     
+     <Button
+           android:layout_below="@+id/button_left"
+        android:id="@+id/button_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Right" />
+     
+     <Button
+           android:layout_below="@+id/button_right"
+        android:id="@+id/button_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop" />
+
+
+
+</RelativeLayout>
