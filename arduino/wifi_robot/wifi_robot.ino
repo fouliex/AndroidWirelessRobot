@@ -4,7 +4,7 @@
 //#include <MsTimer2.h>
 #include <EEPROM.h> 
 
-int ledpin = 13;//设置系统启动指示灯
+int ledpin = 13;//Set the system startup light
 int ENA = 5;//
 int ENB = 6;//
 int INPUT2 = 7;//
@@ -30,10 +30,10 @@ int Pre_Cruising_Flag = 0 ;
 //AF_DCMotor motor1(1, MOTOR12_64KHZ);// Create motor # 1, the speed is 64KHz pwm
 //AF_DCMotor motor2(2, MOTOR12_64KHZ);// Create motor # 2, speed is 64KHz pwm
 
-Servo servo1;// 创建舵机#1号
-Servo servo2;// 创建舵机#2号
+Servo servo1;// Create a steering gear # 1
+Servo servo2;// Create a steering gear # 2
 
-byte angle1=70;//舵机#1
+byte angle1=70;// Steering gear # 1
 byte angle2=60;
 
 int buffer[3];  // The serial port receives the data cache
@@ -54,7 +54,7 @@ void Open_Light()// Turn on the headlights
     }
 void Close_Light()//关大灯
     {  
-      digitalWrite(Carled, LOW);   //拉低电平，正极接电源，负极接Io口
+      digitalWrite(Carled, LOW);  
       delay(1000);             
     }
     
@@ -63,43 +63,17 @@ void  Avoiding()
       IR = digitalRead(Input_Detect);
        if((IR == HIGH))
        {
-          MOTOR_GO_FORWARD;//直行 
+          MOTOR_GO_FORWARD;
           return;            
        }
        if((IR == LOW))
        {
-            MOTOR_GO_STOP;//停止
+            MOTOR_GO_STOP;
             return;
        }
     }
            
    
-
- 
-
-void ask_Distance()   // 量出距离   
- {  
-      delay(200);
-      digitalWrite(outputPin, LOW);   // 让超声波发射低电压2μs  
-      delayMicroseconds(2);  
-      digitalWrite(outputPin, HIGH);  // 让超声波发射高电压10μs，这里至少是10μs  
-      delayMicroseconds(10);  
-      digitalWrite(outputPin, LOW);    // 维持超声波发射低电压  
-      float Ldistance = pulseIn(inputPin, HIGH);  // 读差相差时间  
-      Ldistance= Ldistance/5.8/10;       // 将时间转为距离距离（单位：公分）  
-    //  Serial.print("L distance:");       //输出距离（单位：公分）  
-    //  Serial.println(Ldistance);         //显示距离  
-      if(Ldistance < 15)
-      {
-          MOTOR_GO_STOP;
-      }
-      else
-      {
-          MOTOR_GO_FORWARD;
-      }
-      
-  }    
-
 void  Delayed()
 {
     int i;
@@ -221,7 +195,7 @@ void Communication_Decode()
         EEPROM.write(0x02,angle2);
         return;
     }
-    	else if(buffer[0]==0x13)//模式切换开关
+    	else if(buffer[0]==0x13)//Mode switch
 	{
 	}
         else if(buffer[0]==0x05)
