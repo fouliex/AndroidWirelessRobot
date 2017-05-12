@@ -8,10 +8,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -21,9 +19,11 @@ import java.net.URL;
 import java.net.UnknownHostException;
 
 public class MyVideo extends Activity implements View.OnTouchListener {
-    private Button TakePhotos;
-    private Button ViewPhotos;
-    private Button BtnForward, BtnBackward, BtnLeft, BtnRight, BtnStop;
+    private  final int STOP_COMMAND= 0x00 ;
+    private  final int FORWARD_COMMAND =0x01;
+    private  final int BACKWARD_COMMAND = 0x02;
+    private  final int LEFT_COMMAND = 0x03;
+    private final int  RIGHT_COMMAND = 0x04;
     URL videoUrl;
     public static String CameraIp;
     public static String CtrlIp;
@@ -49,17 +49,7 @@ public class MyVideo extends Activity implements View.OnTouchListener {
             StrictMode.setThreadPolicy(policy);
         }
         r = (MySurfaceView) findViewById(R.id.mySurfaceViewVideo);
-        TakePhotos = (Button) findViewById(R.id.TakePhoto);
-        ViewPhotos = (Button) findViewById(R.id.ViewPhoto);
-
-        BtnForward = (Button) findViewById(R.id.button_forward);
-        BtnBackward = (Button) findViewById(R.id.button_backward);
-        BtnLeft = (Button) findViewById(R.id.button_left);
-        BtnRight = (Button) findViewById(R.id.button_right);
-        BtnStop = (Button) findViewById(R.id.button_stop);
-
         Intent intent = getIntent();
-
         CameraIp = intent.getStringExtra("CameraIp");
         CtrlIp = intent.getStringExtra("ControlUrl");
         CtrlPort = intent.getStringExtra("Port");
@@ -67,104 +57,7 @@ public class MyVideo extends Activity implements View.OnTouchListener {
         Log.d("wifirobot", "CtrlPort is :++++" + CtrlPort);
         r.GetCameraIP(CameraIp);
         InitSocket();
-        BtnForward.setOnClickListener(new OnClickListener() {
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                try {
-                    socketWriter.write(new byte[]{(byte) 0xff, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0xff});
-                    socketWriter.flush();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        BtnBackward.setOnClickListener(new OnClickListener() {
-
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                try {
-                    socketWriter.write(new byte[]{(byte) 0xff, (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0xff});
-                    socketWriter.flush();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
-        });
-        BtnLeft.setOnClickListener(new OnClickListener() {
-
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                try {
-                    socketWriter.write(new byte[]{(byte) 0xff, (byte) 0x00, (byte) 0x03, (byte) 0x00, (byte) 0xff});
-                    socketWriter.flush();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
-
-        });
-        BtnRight.setOnClickListener(new OnClickListener() {
-
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                try {
-                    socketWriter.write(new byte[]{(byte) 0xff, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0xff});
-                    socketWriter.flush();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
-        });
-        BtnStop.setOnClickListener(new OnClickListener() {
-
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                try {
-                    socketWriter.write(new byte[]{(byte) 0xff, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xff});
-                    socketWriter.flush();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
-
-        });
-        TakePhotos.setOnClickListener(new OnClickListener() {
-
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                try {
-                    socketWriter.write(new byte[]{(byte) 0xff, (byte) 0x33, (byte) 0x00, (byte) 0x00, (byte) 0xff});
-                    socketWriter.flush();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
-        });
-
-        ViewPhotos.setOnClickListener(new OnClickListener() {
-
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                Intent intent = new Intent();
-                intent.setClass(MyVideo.this, BgPictureShowActivity.class);
-                MyVideo.this.startActivity(intent);
-
-            }
-
-        });
-
+        setMotorCommandsOnTouchListener();
     }
 
     /**
@@ -198,8 +91,8 @@ public class MyVideo extends Activity implements View.OnTouchListener {
                 else if (event.getAction() == MotionEvent.ACTION_UP) right = false;
                 break;
             case R.id.button_stop:
-                if (event.getAction() == MotionEvent.ACTION_DOWN) stop = false;
-                else if (event.getAction() == MotionEvent.ACTION_UP) stop = true;
+                if (event.getAction() == MotionEvent.ACTION_DOWN) stop = true;
+                else if (event.getAction() == MotionEvent.ACTION_UP) stop = false;
                 break;
         }
         if(event.getAction() == MotionEvent.ACTION_DOWN || event.getAction()==MotionEvent.ACTION_UP)
@@ -208,7 +101,29 @@ public class MyVideo extends Activity implements View.OnTouchListener {
     }
 
     private void command() {
-        
+        if (stop) {
+            send(STOP_COMMAND);
+        } else if (forward) {
+            if (left && !right) send(LEFT_COMMAND);
+            else if (right) send(RIGHT_COMMAND);
+            else if (!backward) send(FORWARD_COMMAND);
+            else send(STOP_COMMAND);
+        } else if (backward) {
+            if (!forward) send(BACKWARD_COMMAND);
+            else send(STOP_COMMAND);
+        } else if (left && !right) send(LEFT_COMMAND);
+        else if (right) send(RIGHT_COMMAND);
+        else send(STOP_COMMAND);
+    }
+    private void send(int command){
+        try {
+            socketWriter.write(new byte[]{(byte) 0xff, (byte) 0x00, (byte) command, (byte) 0x00, (byte) 0xff});
+            socketWriter.flush();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     public void InitSocket() {
